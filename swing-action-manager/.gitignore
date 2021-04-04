@@ -1,0 +1,7 @@
+/target
+/bin
+MANIFEST.MF
+.classpath
+.project
+.settings
+/META-INF
