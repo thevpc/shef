@@ -73,9 +73,6 @@ public class ShefHelper {
         Map<Object, Action> initial = new HashMap<>();
         for (Object k : actionMap.allKeys()) {
             Action a = actionMap.get(k);
-            if(a.getClass().toString().contains("MinWysiwygHTMLEditorKitInstallHelper")){
-                System.out.println("why");
-            }
             initial.put(k, a);
         }
         editor.putClientProperty("INITIAL_ACTION_MAP", initial);
@@ -1339,24 +1336,24 @@ public class ShefHelper {
     }
 
     public static void runPaste(JEditorPane editor) {
-        HTMLEditorKit ekit = (HTMLEditorKit) editor.getEditorKit();
-        HTMLDocument document = (HTMLDocument) editor.getDocument();
-        Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-        try {
-            beginCompoundEdit(document);
-            Transferable content = clip.getContents(editor);
-            String txt = content.getTransferData(
-                    new DataFlavor(String.class, "String")).toString();
-
-            document.replace(editor.getSelectionStart(),
-                    editor.getSelectionEnd() - editor.getSelectionStart(),
-                    txt, ekit.getInputAttributes());
-
-        } catch (Exception ex) {
-            //ex.printStackTrace();
-        } finally {
-            endCompoundEdit(document);
-        }
+        editor.paste();
+//        HTMLEditorKit ekit = (HTMLEditorKit) editor.getEditorKit();
+//        HTMLDocument document = (HTMLDocument) editor.getDocument();
+//        Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
+//        try {
+//            beginCompoundEdit(document);
+//            Transferable content = clip.getContents(editor);
+//            String txt = content.getTransferData(
+//                    new DataFlavor(String.class, "String")).toString();
+//            document.replace(editor.getSelectionStart(),
+//                    editor.getSelectionEnd() - editor.getSelectionStart(),
+//                    txt, ekit.getInputAttributes());
+//
+//        } catch (Exception ex) {
+//            //ex.printStackTrace();
+//        } finally {
+//            endCompoundEdit(document);
+//        }
     }
 
     public static void runInsertTabForward(JEditorPane editor) {
