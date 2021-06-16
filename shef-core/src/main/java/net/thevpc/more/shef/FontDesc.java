@@ -14,9 +14,9 @@ public class FontDesc {
     int fontSize;
     boolean bold;
     boolean italic;
-    boolean underline;
+    Boolean underline;
 
-    public FontDesc(String fontName, int fontSize, boolean bold, boolean italic, boolean underline) {
+    public FontDesc(String fontName, int fontSize, boolean bold, boolean italic, Boolean underline) {
         this.fontName = fontName;
         this.fontSize = fontSize;
         this.bold = bold;
@@ -40,7 +40,7 @@ public class FontDesc {
         return italic;
     }
 
-    public boolean isUnderline() {
+    public Boolean getUnderline() {
         return underline;
     }
     

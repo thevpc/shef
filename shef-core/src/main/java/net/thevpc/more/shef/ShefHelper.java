@@ -22,14 +22,7 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JEditorPane;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledEditorKit;
+import javax.swing.text.*;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
@@ -79,6 +72,13 @@ public class ShefHelper {
         return editor;
     }
 
+    public static Action getInitialActionOrNull(JEditorPane editor, Object key) {
+        Map<Object, Action> actionMap = (Map<Object, Action>) editor.getClientProperty("INITIAL_ACTION_MAP");
+        if (actionMap != null) {
+            return actionMap.get(key);
+        }
+        return null;
+    }
     public static Action getInitialAction(JEditorPane editor, Object key) {
         Map<Object, Action> actionMap = (Map<Object, Action>) editor.getClientProperty("INITIAL_ACTION_MAP");
         if (actionMap == null) {
@@ -86,7 +86,7 @@ public class ShefHelper {
         }
         Action a = actionMap.get(key);
         if (a == null) {
-            throw new IllegalArgumentException("inital action not found: " + key);
+            throw new IllegalArgumentException("initial action not found: " + key);
         }
         return a;
     }
@@ -728,7 +728,9 @@ public class ShefHelper {
         tagAttrs.addAttribute(StyleConstants.FontSize, new Integer(d.getFontSize()));
         tagAttrs.addAttribute(StyleConstants.Bold, new Boolean(d.isBold()));
         tagAttrs.addAttribute(StyleConstants.Italic, new Boolean(d.isItalic()));
-        tagAttrs.addAttribute(StyleConstants.Underline, new Boolean(d.isUnderline()));
+        if(d.getUnderline()!=null) {
+            tagAttrs.addAttribute(StyleConstants.Underline, d.getUnderline());
+        }
 
         beginCompoundEdit(editor.getDocument());
         HTMLUtils.setCharacterAttributes(editor, tagAttrs);
@@ -1368,7 +1370,10 @@ public class ShefHelper {
                 ex.printStackTrace();
             }
         } else {
-            getInitialAction(editor, "insert-tab").actionPerformed(null);
+            Action a = getInitialActionOrNull(editor, "insert-tab");
+            if(a!=null) {
+                a.actionPerformed(null);
+            }
         }
     }
 
@@ -1379,12 +1384,18 @@ public class ShefHelper {
         Element tdElem = HTMLUtils.getParent(elem, HTML.Tag.TD);
         if (tdElem != null) {
             try {
-                editor.setCaretPosition(tdElem.getStartOffset() - 1);
+                int position = tdElem.getStartOffset() - 1;
+                if(position>=0) {
+                    editor.setCaretPosition(position);
+                }
             } catch (IllegalArgumentException ex) {
                 ex.printStackTrace();
             }
         } else {
-            getInitialAction(editor, "tab-backward").actionPerformed(null);
+            Action a = getInitialActionOrNull(editor, "tab-backward");
+            if(a!=null) {
+                a.actionPerformed(null);
+            }
         }
     }
 
@@ -1488,6 +1499,31 @@ public class ShefHelper {
         endCompoundEdit(document);
     }
 
+    /**
+     * by: vpc
+     * @param ed editor
+     */
+    public static void runDeleteTable(JEditorPane ed) {
+        HTMLDocument document = (HTMLDocument) ed.getDocument();
+
+        Element curElem = document.getParagraphElement(ed.getCaretPosition());
+        Element tab = HTMLUtils.getParent(curElem, HTML.Tag.TABLE);
+        if (tab == null) {
+            return;
+        }
+
+        beginCompoundEdit(document);
+        String tbefore = ed.getText();
+        try {
+            removeTable(tab);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        endCompoundEdit(document);
+        String tafter = ed.getText();
+        System.out.println(tafter);
+    }
+
     public static void runDeleteTableCol(JEditorPane ed) {
         HTMLDocument document = (HTMLDocument) ed.getDocument();
 
@@ -1541,6 +1577,30 @@ public class ShefHelper {
                 tbl = HTMLUtils.createTag(HTML.Tag.TABLE, atr, tbl);
                 doc.setOuterHTML(table, tbl);
             }
+        }
+    }
+
+    private static void removeTable(Element table) throws Exception {
+        if (table != null && table.getName().equals("table")) {
+            remove(table);
+//            Element pe = table.getParentElement();
+//            if(pe!=null){
+//                if(pe instanceof AbstractDocument.BranchElement){
+//                    AbstractDocument.BranchElement be=(AbstractDocument.BranchElement)pe;
+//                    List<Element> ch=new ArrayList<>();
+//                    for (int i = 0; i < be.getElementCount(); i++) {
+//                        Element ee = be.getElement(i);
+//                        if(ee!=table){
+//                            ch.add(ee);
+//                        }
+//                    }
+//                    be.replace(
+//                            pe.getStartOffset(),
+//                            pe.getEndOffset()-pe.getStartOffset(),
+//                            ch.toArray(new Element[0])
+//                    );
+//                }
+//            }
         }
     }
 

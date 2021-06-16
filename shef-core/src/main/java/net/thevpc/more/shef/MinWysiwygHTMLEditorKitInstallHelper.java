@@ -89,7 +89,7 @@ public class MinWysiwygHTMLEditorKitInstallHelper implements WysiwygHTMLEditorKi
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ShefHelper.runInsertTabBackward(editor);
+                ShefHelper.runInsertTabForward(editor);
             }
 
         };

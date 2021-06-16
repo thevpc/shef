@@ -20,14 +20,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.ComponentView;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
+import javax.swing.text.*;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -48,7 +41,7 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
      *
      */
     private static final long serialVersionUID = 1L;
-    private ViewFactory wysFactory = new WysiwygHTMLFactory();
+    protected ViewFactory wysFactory = new WysiwygHTMLFactory();
     private ArrayList monitoredViews = new ArrayList();
     private MouseInputAdapter resizeHandler = new ResizeHandler();
 
@@ -108,17 +101,21 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
      */
     public class WysiwygHTMLFactory extends HTMLFactory {
 
+        protected View createBase(Element elem) {
+            return super.create(elem);
+        }
+
         public View create(Element elem) {
             Object o = elem.getAttributes().getAttribute(StyleConstants.NameAttribute);
             if (o instanceof HTML.Tag) {
                 HTML.Tag kind = (HTML.Tag) o;
                 if (kind == HTML.Tag.TABLE) {
                     ResizableView v = new ResizableView(
-                            new BorderlessTableView(super.create(elem)));
+                            new BorderlessTableView(createBase(elem)));
                     monitoredViews.add(v);
                     return v;
                 } else if (kind == HTML.Tag.IMG) {
-                    ResizableView v = new ResizableView(super.create(elem));
+                    ResizableView v = new ResizableView(createBase(elem));
                     monitoredViews.add(v);
                     return v;
                 } else if (kind == HTML.Tag.COMMENT) {
@@ -161,7 +158,7 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
                 }
             }
 
-            return super.create(elem);
+            return createBase(elem);
         }
     }
 
