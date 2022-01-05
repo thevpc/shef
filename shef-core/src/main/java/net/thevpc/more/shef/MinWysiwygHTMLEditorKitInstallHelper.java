@@ -20,7 +20,7 @@ import javax.swing.KeyStroke;
 
 /**
  *
- * @author vpc
+ * @author thevpc
  */
 public class MinWysiwygHTMLEditorKitInstallHelper implements WysiwygHTMLEditorKitInstallHelper {
 

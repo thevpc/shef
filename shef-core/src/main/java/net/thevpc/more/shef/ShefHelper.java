@@ -5,35 +5,28 @@
  */
 package net.thevpc.more.shef;
 
-import java.awt.Color;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.JEditorPane;
+import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.tree.TreeNode;
+import java.awt.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.*;
 
 /**
- *
- * @author vpc
+ * @author thevpc
  */
 public class ShefHelper {
 
+    public static final String ALIGNMENTS[]
+            = {
+            "left", "center", "right", "justify"
+    };
     public static UndoManagerResolver managerResolver;
 
     public static UndoManagerResolver getManagerResolver() {
@@ -44,12 +37,6 @@ public class ShefHelper {
         ShefHelper.managerResolver = managerResolver;
     }
 
-    public static final String ALIGNMENTS[]
-            = {
-                "left", "center", "right", "justify"
-            };
-
-    
     public static JEditorPane installMin(JEditorPane editor) {
         editor.setContentType("text/html");
         init(editor);
@@ -60,7 +47,7 @@ public class ShefHelper {
         editor.setContentType("text/html");
         return editor;
     }
-    
+
     public static JEditorPane init(JEditorPane editor) {
         ActionMap actionMap = editor.getActionMap();
         Map<Object, Action> initial = new HashMap<>();
@@ -79,6 +66,7 @@ public class ShefHelper {
         }
         return null;
     }
+
     public static Action getInitialAction(JEditorPane editor, Object key) {
         Map<Object, Action> actionMap = (Map<Object, Action>) editor.getClientProperty("INITIAL_ACTION_MAP");
         if (actionMap == null) {
@@ -212,7 +200,7 @@ public class ShefHelper {
                                 HTML.Tag listParentTag = HTML.getTag(HTMLUtils.getListParent(listParentElem).toString());
                                 HTMLEditorKit.InsertHTMLTextAction a
                                         = new HTMLEditorKit.InsertHTMLTextAction("insert",
-                                                "<li></li>", listParentTag, HTML.Tag.LI);
+                                        "<li></li>", listParentTag, HTML.Tag.LI);
                                 a.actionPerformed(null);
                             } else {
                                 HTML.Tag root = HTML.Tag.BODY;
@@ -222,7 +210,7 @@ public class ShefHelper {
 
                                 HTMLEditorKit.InsertHTMLTextAction a
                                         = new HTMLEditorKit.InsertHTMLTextAction("insert",
-                                                "<p></p>", root, HTML.Tag.P);
+                                        "<p></p>", root, HTML.Tag.P);
                                 a.actionPerformed(null);
                             }
 
@@ -327,7 +315,7 @@ public class ShefHelper {
     private static void insertImpliedBR() {
         HTMLEditorKit.InsertHTMLTextAction hta
                 = new HTMLEditorKit.InsertHTMLTextAction("insertBR",
-                        "<br>", HTML.Tag.IMPLIED, HTML.Tag.BR);
+                "<br>", HTML.Tag.IMPLIED, HTML.Tag.BR);
         hta.actionPerformed(null);
     }
 
@@ -423,7 +411,7 @@ public class ShefHelper {
         //if the charattribs contains a br, hr, or img attribute, it'll erase
         //any content in the paragraph
         boolean skipAttribs = false;
-        for (Enumeration ee = sas.getAttributeNames(); ee.hasMoreElements();) {
+        for (Enumeration ee = sas.getAttributeNames(); ee.hasMoreElements(); ) {
             Object n = ee.nextElement();
             String val = chAttribs.getAttribute(n).toString();
             ////System.out.println(n + " " + val);
@@ -499,7 +487,7 @@ public class ShefHelper {
     }
 
     public static void runInsertBloc(JEditorPane editor, BlocEnum type) {
-    HTMLDocument document = (HTMLDocument) editor.getDocument();
+        HTMLDocument document = (HTMLDocument) editor.getDocument();
         int caret = editor.getCaretPosition();
         beginCompoundEdit(document);
         try {
@@ -600,7 +588,7 @@ public class ShefHelper {
         insertHTML(html, getTag(type), rootTag);
 
         //now, remove the elements that were changed.
-        for (Iterator it = elToRemove.iterator(); it.hasNext();) {
+        for (Iterator it = elToRemove.iterator(); it.hasNext(); ) {
             Element c = (Element) it.next();
             HTMLUtils.removeElement(c);
         }
@@ -613,7 +601,8 @@ public class ShefHelper {
     /**
      * Gets the tag
      *
-     * @return
+     * @param  type type
+     * @return tag
      */
     public static HTML.Tag getTag(BlocEnum type) {
         HTML.Tag tag = HTML.Tag.DIV;
@@ -728,7 +717,7 @@ public class ShefHelper {
         tagAttrs.addAttribute(StyleConstants.FontSize, new Integer(d.getFontSize()));
         tagAttrs.addAttribute(StyleConstants.Bold, new Boolean(d.isBold()));
         tagAttrs.addAttribute(StyleConstants.Italic, new Boolean(d.isItalic()));
-        if(d.getUnderline()!=null) {
+        if (d.getUnderline() != null) {
             tagAttrs.addAttribute(StyleConstants.Underline, d.getUnderline());
         }
 
@@ -884,12 +873,12 @@ public class ShefHelper {
         int pos = editor.getCaretPosition();
         String elName
                 = document
-                        .getParagraphElement(pos)
-                        .getName();
+                .getParagraphElement(pos)
+                .getName();
         /*
-		 * if ((elName.toUpperCase().equals("PRE")) ||
-		 * (elName.toUpperCase().equals("P-IMPLIED"))) {
-		 * editor.replaceSelection("\r"); return;
+         * if ((elName.toUpperCase().equals("PRE")) ||
+         * (elName.toUpperCase().equals("P-IMPLIED"))) {
+         * editor.replaceSelection("\r"); return;
          */
         HTML.Tag tag = HTML.getTag(elName);
         if (elName.toUpperCase().equals("P-IMPLIED")) {
@@ -898,10 +887,10 @@ public class ShefHelper {
 
         HTMLEditorKit.InsertHTMLTextAction hta
                 = new HTMLEditorKit.InsertHTMLTextAction(
-                        "insertBR",
-                        "<br>",
-                        tag,
-                        HTML.Tag.BR);
+                "insertBR",
+                "<br>",
+                tag,
+                HTML.Tag.BR);
         hta.actionPerformed(null);
     }
 
@@ -1069,7 +1058,7 @@ public class ShefHelper {
             }
         }
 
-        for (Iterator it = rootLists.iterator(); it.hasNext();) {
+        for (Iterator it = rootLists.iterator(); it.hasNext(); ) {
             Element rl = (Element) it.next();
             String newHtml = buildListHTML(rl, new ArrayList(liElems), isIndent);
             System.err.println(newHtml);
@@ -1116,13 +1105,6 @@ public class ShefHelper {
         return html.toString();
     }
 
-    private static class ListItem {
-
-        String html;
-        int level;
-        HTML.Tag listTag;
-    }
-
     private static String openOrCloseList(HTML.Tag ltag, int level) {
         String tag;
         if (level < 0) {
@@ -1166,7 +1148,7 @@ public class ShefHelper {
     }
 
     private static void blockquoteElements(List elems, HTMLDocument doc) {
-        for (Iterator it = elems.iterator(); it.hasNext();) {
+        for (Iterator it = elems.iterator(); it.hasNext(); ) {
             Element curE = (Element) it.next();
             String eleHtml = HTMLUtils.getElementHTML(curE, true);
             StringBuffer sb = new StringBuffer();
@@ -1182,7 +1164,7 @@ public class ShefHelper {
     }
 
     private static void unblockquoteElements(List elems, HTMLDocument doc) {
-        for (Iterator it = elems.iterator(); it.hasNext();) {
+        for (Iterator it = elems.iterator(); it.hasNext(); ) {
             Element curE = (Element) it.next();
             if (!curE.getName().equals("blockquote")) {
                 continue;
@@ -1371,7 +1353,7 @@ public class ShefHelper {
             }
         } else {
             Action a = getInitialActionOrNull(editor, "insert-tab");
-            if(a!=null) {
+            if (a != null) {
                 a.actionPerformed(null);
             }
         }
@@ -1385,7 +1367,7 @@ public class ShefHelper {
         if (tdElem != null) {
             try {
                 int position = tdElem.getStartOffset() - 1;
-                if(position>=0) {
+                if (position >= 0) {
                     editor.setCaretPosition(position);
                 }
             } catch (IllegalArgumentException ex) {
@@ -1393,7 +1375,7 @@ public class ShefHelper {
             }
         } else {
             Action a = getInitialActionOrNull(editor, "tab-backward");
-            if(a!=null) {
+            if (a != null) {
                 a.actionPerformed(null);
             }
         }
@@ -1501,6 +1483,7 @@ public class ShefHelper {
 
     /**
      * by: vpc
+     *
      * @param ed editor
      */
     public static void runDeleteTable(JEditorPane ed) {
@@ -1649,12 +1632,64 @@ public class ShefHelper {
     private static void remove(Element el) throws BadLocationException {
         int start = el.getStartOffset();
         int len = el.getEndOffset() - start;
-        Document document = el.getDocument();
-
-        if (el.getEndOffset() > document.getLength()) {
-            len = document.getLength() - start;
+        HTMLDocument doc = (HTMLDocument) el.getDocument();
+//        if(start<=0 && len>=doc.getLength()){
+        //BUG Workaround!
+//            doc.remove(0, doc.getLength());
+//            doc.insertString(0, "empty", null);
+        if (el instanceof AbstractDocument.BranchElement) {
+            AbstractDocument.BranchElement b = (AbstractDocument.BranchElement) el;
+            Object n = b.getAttribute(StyleConstants.NameAttribute);
+            TreeNode p = b.getParent();
+            int qq = p.getIndex(b);
+            if (HTML.Tag.TABLE.equals(n)) {
+//                    try {
+//                        doc.insertBeforeStart(b,"<p></p>");
+//                    } catch (IOException e) {
+//                        throw new IllegalArgumentException(e);
+//                    }
+                int offset = b.getStartOffset();
+                if (qq >= 0 && p instanceof AbstractDocument.BranchElement) {
+                    AbstractDocument.BranchElement bb = (AbstractDocument.BranchElement) p;
+                    if(bb.getElementCount()==1) {
+//                        try {
+//                            doc.insertBeforeEnd(bb, "<p></p>");
+//                        } catch (IOException e) {
+//                            throw new IllegalArgumentException(e);
+//                        }
+//                        bb.replace(qq, 1, new Element[0]);
+                        return;
+                    }
+                }
+//                    int q = b.getChildCount();
+//                    for (int i = 0; i < q; i++) {
+//                        doc.removeElement((Element) b.getChildAt(0));
+//                    }
+            }
         }
-        document.remove(start, len);
+//        }
+        doc.removeElement(el);
+
+//        if (el.getEndOffset() > doc.getLength()) {
+//            len = doc.getLength() - start;
+//        }
+//        doc.remove(start, len);
+//        if(start==0 && len==0){
+//            for (Element rootElement : doc.getRootElements()) {
+//                while(true){
+//                    int c0 = rootElement.getElementCount();
+//                    if(c0 >0) {
+//                        doc.removeElement(rootElement.getElement(0));
+//                        int c1 = rootElement.getElementCount();
+//                        if(c1>=c0){
+//                            break;
+//                        }
+//                    }else{
+//                        break;
+//                    }
+//                }
+//            }
+//        }
     }
 
     private static int getCellIndex(Element tr, Element td) {
@@ -1766,5 +1801,12 @@ public class ShefHelper {
         if (managerResolver != null) {
             managerResolver.endCompoundEdit(doc);
         }
+    }
+
+    private static class ListItem {
+
+        String html;
+        int level;
+        HTML.Tag listTag;
     }
 }

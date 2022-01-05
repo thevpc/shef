@@ -9,7 +9,7 @@ import javax.swing.JEditorPane;
 
 /**
  *
- * @author vpc
+ * @author thevpc
  */
 public interface WysiwygHTMLEditorKitInstallHelper {
     void install(JEditorPane editor);

@@ -9,7 +9,7 @@ import javax.swing.text.Document;
 
 /**
  *
- * @author vpc
+ * @author thevpc
  */
 public interface UndoManagerResolver {
 

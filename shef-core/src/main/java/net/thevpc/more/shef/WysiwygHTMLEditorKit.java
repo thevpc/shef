@@ -1,31 +1,19 @@
 package net.thevpc.more.shef;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Stroke;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.text.*;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.ImageView;
-import javax.swing.text.html.ObjectView;
 
 
 /**
@@ -33,7 +21,6 @@ import javax.swing.text.html.ObjectView;
  * allows for resizing of tables and images.
  *
  * @author Bob Tantlinger
- *
  */
 public class WysiwygHTMLEditorKit extends HTMLEditorKit {
 
@@ -46,6 +33,42 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
     private MouseInputAdapter resizeHandler = new ResizeHandler();
 
     private List<WysiwygHTMLEditorKitInstallHelper> helpers = new ArrayList<>();
+    DocumentListener docListener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+//            System.out.println("insertUpdate "+e.getOffset()+" "+e.getLength());
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+//            System.out.println("removeUpdate "+e.getOffset()+" "+e.getLength()+" "+e.getDocument().getLength());
+            //if(e.getDocument().getLength()==0 && e.getDocument() instanceof HTMLDocument){
+                updateMonitoredViews((HTMLDocument) e.getDocument());
+            //}
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+//            System.out.println("changedUpdate "+e.getOffset()+" "+e.getLength());
+        }
+    };
+    private PropertyChangeListener docPropertyListener= new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            Object ov = evt.getOldValue();
+            if (ov instanceof HTMLDocument) {
+                HTMLDocument ov1 = (HTMLDocument) ov;
+                //updateMonitoredViews(nv1);
+                ov1.removeDocumentListener(docListener);
+            }
+            Object nv = evt.getNewValue();
+            if (nv instanceof HTMLDocument) {
+                HTMLDocument nv1 = (HTMLDocument) nv;
+                updateMonitoredViews(nv1);
+                nv1.addDocumentListener(docListener);
+            }
+        }
+    };
 
     public WysiwygHTMLEditorKit() {
         super();
@@ -53,6 +76,16 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
 
     public void addInstallHelper(WysiwygHTMLEditorKitInstallHelper helper) {
         helpers.add(helper);
+    }
+
+    /**
+     * Fetch a factory that is suitable for producing views of any models that
+     * are produced by this kit.
+     *
+     * @return the factory
+     */
+    public ViewFactory getViewFactory() {
+        return wysFactory;
     }
 
     public Document createDefaultDocument() {
@@ -69,7 +102,7 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
         super.install(ed);
         ed.addMouseListener(resizeHandler);
         ed.addMouseMotionListener(resizeHandler);
-
+        ed.addPropertyChangeListener("document", docPropertyListener);
         for (WysiwygHTMLEditorKitInstallHelper helper : helpers) {
             helper.install(ed);
         }
@@ -80,19 +113,38 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
         super.deinstall(ed);
         ed.removeMouseListener(resizeHandler);
         ed.removeMouseMotionListener(resizeHandler);
+        ed.removePropertyChangeListener("document", docPropertyListener);
         for (WysiwygHTMLEditorKitInstallHelper helper : helpers) {
             helper.deinstall(ed);
         }
     }
 
     /**
-     * Fetch a factory that is suitable for producing views of any models that
-     * are produced by this kit.
+     * Updates the list of monitored ResizeableViews. If they don't exist in
+     * the document, they're removed from the list.
      *
-     * @return the factory
+     * @param doc doc
      */
-    public ViewFactory getViewFactory() {
-        return wysFactory;
+    public void updateMonitoredViews(HTMLDocument doc) {
+        for (Iterator it = monitoredViews.iterator(); it.hasNext(); ) {
+            View v = (View) it.next();
+            Element vElem = v.getElement();
+            if (vElem.getName().equals("img")) {
+                Element el = doc.getCharacterElement(vElem.getStartOffset());
+                if (el != vElem) {
+                    it.remove();
+                }
+            } else if (vElem.getName().equals("table")) {
+                Element el = doc.getParagraphElement(vElem.getStartOffset());
+                //get the parent and check if its the same element
+                el = HTMLUtils.getParent(el, HTML.Tag.TABLE);
+                //FIXME if the element is a nested table in the first cell
+                //of the parent table, the parent view is removed
+                if (el != vElem) {
+                    it.remove();
+                }
+            }
+        }
     }
 
     /**
@@ -164,7 +216,6 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
 
     /**
      * Handle the resizing of images and tables
-     *
      */
     private class ResizeHandler extends MouseInputAdapter {
 
@@ -194,16 +245,47 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
             e.getComponent().repaint();
         }
 
-        public void mouseMoved(MouseEvent e) {
-            if (!mouseDown) {
-                ResizableView v = getSelectedView();
-                if (v == null) {
-                    return;
+        public void mouseReleased(MouseEvent e) {
+            mouseDown = false;
+            ResizableView v = getSelectedView();
+            if (v != null && dragStarted) {
+                Element elem = v.getElement();
+                SimpleAttributeSet sas = new SimpleAttributeSet(elem.getAttributes());
+                Integer w = new Integer(v.getSelectionBounds().width);
+                Integer h = new Integer(v.getSelectionBounds().height);
+
+                if (elem.getName().equals("table"))//resize the table
+                {
+                    //currently jeditorpane only supports the width attrib for tables
+                    sas.addAttribute(HTML.Attribute.WIDTH, w);
+                    String html = HTMLUtils.getElementHTML(elem, false);
+                    html = HTMLUtils.createTag(HTML.Tag.TABLE, sas, html);
+                    replace(elem, html);
+                } else if (elem.getName().equals("img"))//resize the img
+                {
+                    sas.addAttribute(HTML.Attribute.WIDTH, w);
+                    sas.addAttribute(HTML.Attribute.HEIGHT, h);
+                    String html = "<img";
+                    for (Enumeration ee = sas.getAttributeNames(); ee.hasMoreElements(); ) {
+                        Object name = ee.nextElement();
+                        if (!(name.toString().equals("name") || name.toString().equals("a"))) {
+                            Object val = sas.getAttribute(name);
+                            html += " " + name + "=\"" + val + "\"";
+                        }
+                    }
+                    html += ">";
+
+                    if (sas.isDefined(HTML.Tag.A)) {
+                        html = "<a " + sas.getAttribute(HTML.Tag.A) + ">" + html + "</a>";
+                    }
+                    replace(elem, html);
                 }
 
-                Component c = e.getComponent();
-                setCursorForDir(v.getHandleForPoint(e.getPoint()), c);
+                //remove views not appearing in the doc
+                updateMonitoredViews((HTMLDocument) v.getDocument());
             }
+
+            dragStarted = false;
         }
 
         public void mouseDragged(MouseEvent e) {
@@ -246,47 +328,16 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
             e.getComponent().repaint();
         }
 
-        public void mouseReleased(MouseEvent e) {
-            mouseDown = false;
-            ResizableView v = getSelectedView();
-            if (v != null && dragStarted) {
-                Element elem = v.getElement();
-                SimpleAttributeSet sas = new SimpleAttributeSet(elem.getAttributes());
-                Integer w = new Integer(v.getSelectionBounds().width);
-                Integer h = new Integer(v.getSelectionBounds().height);
-
-                if (elem.getName().equals("table"))//resize the table
-                {
-                    //currently jeditorpane only supports the width attrib for tables
-                    sas.addAttribute(HTML.Attribute.WIDTH, w);
-                    String html = HTMLUtils.getElementHTML(elem, false);
-                    html = HTMLUtils.createTag(HTML.Tag.TABLE, sas, html);
-                    replace(elem, html);
-                } else if (elem.getName().equals("img"))//resize the img
-                {
-                    sas.addAttribute(HTML.Attribute.WIDTH, w);
-                    sas.addAttribute(HTML.Attribute.HEIGHT, h);
-                    String html = "<img";
-                    for (Enumeration ee = sas.getAttributeNames(); ee.hasMoreElements();) {
-                        Object name = ee.nextElement();
-                        if (!(name.toString().equals("name") || name.toString().equals("a"))) {
-                            Object val = sas.getAttribute(name);
-                            html += " " + name + "=\"" + val + "\"";
-                        }
-                    }
-                    html += ">";
-
-                    if (sas.isDefined(HTML.Tag.A)) {
-                        html = "<a " + sas.getAttribute(HTML.Tag.A) + ">" + html + "</a>";
-                    }
-                    replace(elem, html);
+        public void mouseMoved(MouseEvent e) {
+            if (!mouseDown) {
+                ResizableView v = getSelectedView();
+                if (v == null) {
+                    return;
                 }
 
-                //remove views not appearing in the doc
-                updateMonitoredViews((HTMLDocument) v.getDocument());
+                Component c = e.getComponent();
+                setCursorForDir(v.getHandleForPoint(e.getPoint()), c);
             }
-
-            dragStarted = false;
         }
 
         private void setCursorForDir(int d, Component c) {
@@ -311,33 +362,6 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
             }
         }
 
-        /**
-         * Updates the list of monitored ResizeableViews. If they don't exist in
-         * the document, they're removed from the list.
-         *
-         * @param doc
-         */
-        private void updateMonitoredViews(HTMLDocument doc) {
-            for (Iterator it = monitoredViews.iterator(); it.hasNext();) {
-                View v = (View) it.next();
-                Element vElem = v.getElement();
-                if (vElem.getName().equals("img")) {
-                    Element el = doc.getCharacterElement(vElem.getStartOffset());
-                    if (el != vElem) {
-                        it.remove();
-                    }
-                } else if (vElem.getName().equals("table")) {
-                    Element el = doc.getParagraphElement(vElem.getStartOffset());
-                    //get the parent and check if its the same element
-                    el = HTMLUtils.getParent(el, HTML.Tag.TABLE);
-                    //FIXME if the element is a nested table in the first cell
-                    //of the parent table, the parent view is removed
-                    if (el != vElem) {
-                        it.remove();
-                    }
-                }
-            }
-        }
 
         /**
          * Get the currently selected view. Only one view at a time can be
@@ -346,7 +370,7 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
          * @return
          */
         private ResizableView getSelectedView() {
-            for (Iterator it = monitoredViews.iterator(); it.hasNext();) {
+            for (Iterator it = monitoredViews.iterator(); it.hasNext(); ) {
                 ResizableView v = (ResizableView) it.next();
                 if (v.isSelectionEnabled()) {
                     return v;
@@ -417,19 +441,19 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
         }
 
         /* (non-Javadoc)
-         * @see javax.swing.text.View#insertUpdate(javax.swing.event.DocumentEvent, java.awt.Shape, javax.swing.text.ViewFactory)
-         */
-        public void insertUpdate(DocumentEvent e, Shape a, ViewFactory f) {
-            setSelectionEnabled(false);
-            super.insertUpdate(e, a, f);
-        }
-
-        /* (non-Javadoc)
          * @see javax.swing.text.View#changedUpdate(javax.swing.event.DocumentEvent, java.awt.Shape, javax.swing.text.ViewFactory)
          */
         public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f) {
             setSelectionEnabled(false);
             super.changedUpdate(e, a, f);
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.text.View#insertUpdate(javax.swing.event.DocumentEvent, java.awt.Shape, javax.swing.text.ViewFactory)
+         */
+        public void insertUpdate(DocumentEvent e, Shape a, ViewFactory f) {
+            setSelectionEnabled(false);
+            super.insertUpdate(e, a, f);
         }
 
         /* (non-Javadoc)
@@ -458,6 +482,10 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
             return selBounds;
         }
 
+        public boolean isSelectionEnabled() {
+            return selBounds != null;
+        }
+
         /**
          * Draw the selection if true
          *
@@ -469,10 +497,6 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
             } else {
                 selBounds = null;
             }
-        }
-
-        public boolean isSelectionEnabled() {
-            return selBounds != null;
         }
 
         /**
@@ -532,12 +556,11 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
 
     /**
      * Delegate view which draws borderless tables.
-     *
+     * <p>
      * This class is a delegate view because javax.swing.text.html.TableView is
      * not public...
      *
      * @author Bob Tantlinger
-     *
      */
     private class BorderlessTableView extends DelegateView {
 
@@ -611,7 +634,7 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
         }
 
         private boolean hasBorderAttr(AttributeSet atr) {
-            for (Enumeration e = atr.getAttributeNames(); e.hasMoreElements();) {
+            for (Enumeration e = atr.getAttributeNames(); e.hasMoreElements(); ) {
                 if (e.nextElement().toString().equals("border")) {
                     return true;
                 }
@@ -632,7 +655,6 @@ public class WysiwygHTMLEditorKit extends HTMLEditorKit {
      * <p>
      *
      * @author Bob Tantlinger
-     *
      */
     private class UnknownElementView extends ComponentView {
 

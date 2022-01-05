@@ -7,7 +7,7 @@ package net.thevpc.more.shef;
 
 /**
  *
- * @author vpc
+ * @author thevpc
  */
 public class FontDesc {
     String fontName;

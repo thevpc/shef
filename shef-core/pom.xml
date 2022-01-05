@@ -5,12 +5,56 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.thevpc.more.shef</groupId>
     <artifactId>shef-core</artifactId>
-    <version>0.4</version>
+    <version>0.4.1</version>
     <packaging>jar</packaging>
     <name>net.thevpc.more.shef.shef-core</name>
+    <url>https://github.com/thevpc/shef</url>
+    <description>Simple HTML Editor Framework</description>
+    <!-- This is Based on OpenIndex-SHEF and SHEF - Swing HTML Editor Framework-->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <github.global.server>github</github.global.server>
+        <nuts.genericName>HTML Editor Java Library</nuts.genericName>
+        <nuts.lib>true</nuts.lib>
     </properties>
+    <scm>
+        <connection>scm:git:git://github.com/thevpc/echo.git</connection>
+        <developerConnection>scm:git:ssh://github.com:thevpc/echo.git</developerConnection>
+        <url>https://github.com/thevpc/echo/tree/master</url>
+    </scm>
+
+    <organization>
+        <name>vpc open source initiative</name>
+        <url>https://thevpc.net</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>vpc</id>
+            <name>Taha Ben Salah</name>
+            <email>taha.bensalah@gmail.com</email>
+            <url>https://tahabensalah.net</url>
+            <organization>thevpc open source initiative</organization>
+            <organizationUrl>https://thevpc.net</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Africa/Tunis</timezone>
+            <properties>
+                <picUrl>https://gravatar.com/avatar/977025550163b4a91397007f6ea9ee17</picUrl>
+            </properties>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License 2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</url>
+        </license>
+    </licenses>
     <dependencies>
 
         <!-- compile -->
@@ -21,107 +65,165 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <build>
         <plugins>
-
-            <!-- clean -->
-<!--            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <failOnError>false</failOnError>
-                    <filesets>
-                        <fileset>
-                            <directory>${project.releaseDir}</directory>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>-->
-
-            <!-- compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <showDeprecation>true</showDeprecation>
-                    <debug>false</debug>
-                </configuration>
-            </plugin>
-
-            <!-- source -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.3</version>
+                <version>3.8.0</version>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>compile</id>
+                        <phase>compile</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <showDeprecation>true</showDeprecation>
+                    <debug>true</debug>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
             </plugin>
-
-            <!-- javadoc -->
-            <!--      <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <version>2.9.1</version>
-              <executions>
-                <execution>
-                  <id>attach-javadocs</id>
-                  <goals>
-                    <goal>jar</goal>
-                  </goals>
-                  <configuration>
-                    <quiet>true</quiet>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>-->
-
-            <!-- assembly -->
-            <!--      <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-assembly-plugin</artifactId>
-              <version>2.4</version>
-              <inherited>false</inherited>
-              <configuration>
-                <finalName>${project.baseName}-${project.version}-release</finalName>
-                <outputDirectory>${project.releaseDir}</outputDirectory>
-                <appendAssemblyId>false</appendAssemblyId>
-                <attach>false</attach>
-                <useAllReactorProjects>true</useAllReactorProjects>
-                <descriptors>
-                  <descriptor>assembly.xml</descriptor>
-                </descriptors>
-              </configuration>
-            </plugin>-->
-
-            <!-- findbugs -->
-            <!--      <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>findbugs-maven-plugin</artifactId>
-              <version>3.0.0</version>
-              <configuration>
-                <failOnError>false</failOnError>
-              </configuration>
-            </plugin>-->
-
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${targetdirectory}</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <tags>
+                                <tag>
+                                    <name>app.category</name>
+                                    <placement>a</placement>
+                                    <head>Category:</head>
+                                </tag>
+                            </tags>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <archive>
+                                <manifestEntries>
+                                    <Automatic-Module-Name>net.thevpc.more.shef.shefcore</Automatic-Module-Name>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.3</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
