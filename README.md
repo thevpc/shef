@@ -51,7 +51,7 @@ Dependencies
 
 * Java 6 (or later)
 * [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea) 2.5.3
-* [Swing Action Manager](https://java.net/projects/sam) 0.8.1
+* [Swing Action Manager](https://web.archive.org/web/20170410015334/https://java.net/projects/sam) 0.8.1
 
 
 License
@@ -66,7 +66,7 @@ Todo
 * further testing
 * add missing javadoc comments
 * publish at Maven Central Repository
-* remove dependencies to [Swing Action Manager](https://java.net/projects/sam)
+* remove dependencies to [Swing Action Manager](https://web.archive.org/web/20170410015334/https://java.net/projects/sam)
 
 
 Further informations
