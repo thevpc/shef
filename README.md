@@ -8,7 +8,7 @@ Differences to other shef forks
 
 * more modular, introduced shef-min a minimal for usage of shef without swing-action-manager dependency
 * integrated swing-action-manager in the same repository as it is tighly coupled with
-* fixes from [OpenIndex-SHEF](https://github.com/VEDAGroup/SHEF) up to [v0.3] were integrated
+* fixes from [OpenIndex-SHEF](https://github.com/OpenIndex/OpenIndex-SHEF) up to [v0.3] were integrated
 * fixes from [VEDAGroup](https://github.com/VEDAGroup/SHEF) up to [v1.2.0](https://github.com/VEDAGroup/SHEF/tree/c2d0286703c45030c71c27ab816124872511a944) were integrated
 * more ...
 
