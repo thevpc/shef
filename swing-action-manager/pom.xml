@@ -6,4 +6,10 @@
     <artifactId>swing-action-manager</artifactId>
     <version>0.4</version>
     <name>net.thevpc.more.shef.swing-action-manager</name>
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>         
 </project>
