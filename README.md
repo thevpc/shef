@@ -42,7 +42,7 @@ Features
 Differences to original SHEF
 ----------------------------
 
-* syntax highlighting for HTML code was replaced by [RSyntaxTextArea](http://fifesoft.com/rsyntaxtextarea/)
+* syntax highlighting for HTML code was replaced by [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea)
 * fixes from [VEDAGroup](https://github.com/VEDAGroup/SHEF) up to [v1.2.0](https://github.com/VEDAGroup/SHEF/tree/c2d0286703c45030c71c27ab816124872511a944) were integrated
 
 
