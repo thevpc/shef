@@ -50,7 +50,7 @@ Dependencies
 ------------
 
 * Java 6 (or later)
-* [RSyntaxTextArea](http://fifesoft.com/rsyntaxtextarea/) 2.5.3
+* [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea) 2.5.3
 * [Swing Action Manager](https://java.net/projects/sam) 0.8.1
 
 
