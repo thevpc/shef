@@ -8,7 +8,7 @@ Differences to other shef forks
 
 * more modular, introduced shef-min a minimal for usage of shef without swing-action-manager dependency
 * integrated swing-action-manager in the same repository as it is tighly coupled with
-* fixes from [OpenIndex-SHEF](https://github.com/VEDAGroup/SHEF) up to [v0.3] were integrated
+* fixes from [OpenIndex-SHEF](https://github.com/OpenIndex/OpenIndex-SHEF) up to [v0.3] were integrated
 * fixes from [VEDAGroup](https://github.com/VEDAGroup/SHEF) up to [v1.2.0](https://github.com/VEDAGroup/SHEF/tree/c2d0286703c45030c71c27ab816124872511a944) were integrated
 * more ...
 
@@ -42,7 +42,7 @@ Features
 Differences to original SHEF
 ----------------------------
 
-* syntax highlighting for HTML code was replaced by [RSyntaxTextArea](http://fifesoft.com/rsyntaxtextarea/)
+* syntax highlighting for HTML code was replaced by [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea)
 * fixes from [VEDAGroup](https://github.com/VEDAGroup/SHEF) up to [v1.2.0](https://github.com/VEDAGroup/SHEF/tree/c2d0286703c45030c71c27ab816124872511a944) were integrated
 
 
@@ -50,8 +50,8 @@ Dependencies
 ------------
 
 * Java 6 (or later)
-* [RSyntaxTextArea](http://fifesoft.com/rsyntaxtextarea/) 2.5.3
-* [Swing Action Manager](https://java.net/projects/sam) 0.8.1
+* [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea) 2.5.3
+* [Swing Action Manager](https://web.archive.org/web/20170410015334/https://java.net/projects/sam) 0.8.1
 
 
 License
@@ -66,7 +66,7 @@ Todo
 * further testing
 * add missing javadoc comments
 * publish at Maven Central Repository
-* remove dependencies to [Swing Action Manager](https://java.net/projects/sam)
+* remove dependencies to [Swing Action Manager](https://web.archive.org/web/20170410015334/https://java.net/projects/sam)
 
 
 Further informations
