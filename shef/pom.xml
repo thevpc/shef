@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.thevpc.more.shef</groupId>
     <artifactId>shef-components</artifactId>
-    <version>0.4</version>
+    <version>0.4.1</version>
     <packaging>jar</packaging>
     <name>net.thevpc.more.shef.shef-components</name>
     <properties>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>net.thevpc.more.shef</groupId>
             <artifactId>shef-core</artifactId>
-            <version>0.4</version>
+            <version>0.4.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
