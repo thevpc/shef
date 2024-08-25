@@ -15,7 +15,7 @@
         <dependency>
             <groupId>net.thevpc.more.shef</groupId>
             <artifactId>shef-components</artifactId>
-            <version>0.4</version>
+            <version>0.4.1</version>
         </dependency>
     </dependencies>
 </project>
